@@ -22,6 +22,9 @@ st.set_page_config(
 )
 
 
+
+
+
 st.title("🌾 Smart Farmer Assistant")
 
 # Chat messages only
