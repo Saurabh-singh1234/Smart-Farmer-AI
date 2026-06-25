@@ -21,6 +21,7 @@ st.set_page_config(
     layout="wide"
 )
 
+
 st.title("🌾 Smart Farmer Assistant")
 
 # Chat messages only
