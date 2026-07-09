@@ -1,6 +1,8 @@
 import os
 import uuid
 
+import numpy as np
+import sounddevice as sd
 import speech_recognition as sr
 from gtts import gTTS
 
@@ -8,6 +10,7 @@ from gtts import gTTS
 def speech_to_text(
     language: str = "en-IN",
     phrase_time_limit: int = 10,
+    sample_rate: int = 16000,
 ):
     """Capture microphone audio and recognize speech.
 
@@ -20,19 +23,25 @@ def speech_to_text(
     recognizer = sr.Recognizer()
 
     try:
-        with sr.Microphone() as source:
-            # Improve accuracy by calibrating to ambient noise.
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)
-            print("Listening...")
-            audio = recognizer.listen(source, phrase_time_limit=phrase_time_limit)
+        recording = sd.rec(
+            int(phrase_time_limit * sample_rate),
+            samplerate=sample_rate,
+            channels=1,
+            dtype="float64",
+        )
+        sd.wait()
+
+        int_data = (recording * 32767).astype(np.int16)
+        raw_bytes = int_data.tobytes()
+
+        audio = sr.AudioData(raw_bytes, sample_rate, 2)
     except Exception as e:
         raise RuntimeError(
             "Microphone not available or audio capture failed. "
-            "Ensure you have a working mic and PyAudio is installed."
+            "Ensure you have a working mic."
         ) from e
 
     try:
-        # Google Web Speech API (free) used via SpeechRecognition.
         text = recognizer.recognize_google(audio, language=language)
         return text
     except sr.UnknownValueError as e:

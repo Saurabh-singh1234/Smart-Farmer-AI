@@ -1,1 +1,4 @@
 /venv
+/venv_new
+.env
+*.mp3

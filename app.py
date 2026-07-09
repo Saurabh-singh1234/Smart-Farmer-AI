@@ -21,15 +21,43 @@ st.set_page_config(
     layout="wide"
 )
 
-
-
-
-
 st.title("🌾 Smart Farmer Assistant")
 
-# Chat messages only
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Keep chat history separate from voice interactions.
+if "chat_messages" not in st.session_state:
+    existing_chat = st.session_state.pop("messages", [])
+    st.session_state.chat_messages = existing_chat
+
+if "voice_last_question" not in st.session_state:
+    st.session_state.voice_last_question = ""
+
+if "voice_last_answer" not in st.session_state:
+    st.session_state.voice_last_answer = ""
+
+
+def _extract_answer(result):
+    if isinstance(result, dict):
+        return (
+            result.get("answer")
+            or result.get("response")
+            or result.get("result")
+            or str(result)
+        )
+    return str(result)
+
+
+def _append_unique_message(state, key, message):
+    messages = state.setdefault(key, [])
+    if not messages:
+        messages.append(message)
+        return
+
+    last_message = messages[-1]
+    if last_message.get("role") == message.get("role") and last_message.get("content") == message.get("content"):
+        return
+
+    messages.append(message)
+
 
 # Tabs
 tab1, tab2, tab3 = st.tabs(
@@ -45,55 +73,58 @@ tab1, tab2, tab3 = st.tabs(
 # =========================
 with tab1:
 
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.write(msg["content"])
+    st.subheader("💬 Chat Assistant")
+    st.caption("Type your question once; the answer will appear below.")
 
-    if (question := st.chat_input("Ask anything...")):
+    with st.form("chat_form", clear_on_submit=True):
+        question = st.text_input("Ask anything...", key="chat_question_input")
+        submitted = st.form_submit_button("Send")
 
-        st.session_state.messages.append(
-            {
-                "role": "user",
-                "content": question
-            }
-        )
-
-        with st.chat_message("user"):
-            st.write(question)
-
-        chat_result = graph.invoke(
-            {
-                "query": question,
-                "answer": ""
-            }
-        )
-
-
-        if isinstance(chat_result, dict):
-            chat_answer = (
-                chat_result.get("answer")
-                or chat_result.get("response")
-                or chat_result.get("result")
-                or str(chat_result)
-            )
+    if submitted:
+        if not question or not str(question).strip():
+            st.warning("Please enter a question first.")
         else:
+            question = str(question).strip()
 
-            chat_answer = str(chat_result)
+            _append_unique_message(
+                st.session_state,
+                "chat_messages",
+                {
+                    "role": "user",
+                    "content": question
+                }
+            )
 
-        # Keep streamlit session state in sync and match FarmerState shape
-        # (helps static type checkers; LangGraph runtime doesn't require this assignment)
-        # chat_result should always include "answer"; fallback ensures output exists.
+            chat_answer = None
+            chat_result = None
+            try:
+                chat_result = graph.invoke(
+                    {
+                        "query": question,
+                        "answer": ""
+                    }
+                )
+            except Exception as e:
+                st.error(f"Chat failed: {e}")
+                chat_answer = "I could not reach the AI service right now, but I can still help with general farming advice."
 
+            if chat_answer is None and chat_result is not None:
+                chat_answer = _extract_answer(chat_result)
 
-        st.session_state.messages.append(
-            {
-                "role": "assistant",
-                "content": chat_answer
-            }
-        )
+            _append_unique_message(
+                st.session_state,
+                "chat_messages",
+                {
+                    "role": "assistant",
+                    "content": chat_answer
+                }
+            )
 
-        with st.chat_message("assistant"):
-            st.write(chat_answer)
+    st.markdown("---")
+    if st.session_state.chat_messages:
+        for msg in st.session_state.chat_messages:
+            with st.chat_message(msg["role"]):
+                st.markdown(f"<div style='font-size: 1.05rem; line-height: 1.6;'>{msg['content']}</div>", unsafe_allow_html=True)
 
 # =========================
 # VOICE TAB
@@ -102,50 +133,47 @@ with tab2:
 
     st.subheader("🎤 Voice Assistant")
 
+    st.caption("Speak your farming question and hear the answer back.")
+
     if st.button(
         "🎙️ Ask by Voice",
         key="voice_btn"
     ):
-
         st.info("Speak now...")
 
-        raw_voice_text = speech_to_text()
+        try:
+            raw_voice_text = speech_to_text()
+        except Exception as e:
+            st.warning(f"Voice capture unavailable: {e}")
+            raw_voice_text = None
+
         voice_question = raw_voice_text.strip() if isinstance(raw_voice_text, str) else ""
 
         if not voice_question:
-            st.error("Could not recognize speech")
-
+            st.error("Could not recognize speech. Please try again.")
         else:
+            st.success(f"You said: {voice_question}")
 
-            st.success(
-                f"You said: {voice_question}"
-            )
-
-            voice_result = graph.invoke(
-                {
-                    "query": voice_question,
-                    "answer": ""
-                }
-            )
-
-
-            if isinstance(voice_result, dict):
-                voice_answer = (
-                    voice_result.get("answer")
-                    or voice_result.get("response")
-                    or voice_result.get("result")
-                    or str(voice_result)
+            try:
+                voice_result = graph.invoke(
+                    {
+                        "query": voice_question,
+                        "answer": ""
+                    }
                 )
+            except Exception as e:
+                st.error(f"Voice query failed: {e}")
+                voice_answer = "I could not reach the AI service right now, but I can still help with general farming advice."
             else:
-                voice_answer = str(voice_result)
+                voice_answer = _extract_answer(voice_result)
+
+            st.session_state.voice_last_question = voice_question
+            st.session_state.voice_last_answer = voice_answer
 
             st.write("### AI Response")
-            st.write(voice_answer)
+            st.markdown(f"<div style='font-size: 1.08rem; line-height: 1.7;'>{voice_answer}</div>", unsafe_allow_html=True)
 
-            audio_file = text_to_voice(
-                voice_answer
-            )
-
+            audio_file = text_to_voice(voice_answer)
             st.audio(audio_file)
 
 # =========================
@@ -180,15 +208,13 @@ with tab3:
                 use_container_width=True
             )
 
-            disease_result = analyze_crop_image(
-                image
-            )
+            try:
+                disease_result = analyze_crop_image(image)
 
-            st.write("### Disease Analysis")
-            st.write(disease_result)
+                st.write("### Disease Analysis")
+                st.markdown(f"<div style='font-size: 1.08rem; line-height: 1.7;'>{disease_result}</div>", unsafe_allow_html=True)
 
-            audio_file = text_to_voice(
-                disease_result
-            )
-
-            st.audio(audio_file)
+                audio_file = text_to_voice(disease_result)
+                st.audio(audio_file)
+            except Exception as e:
+                st.error(f"Disease detection failed: {e}")

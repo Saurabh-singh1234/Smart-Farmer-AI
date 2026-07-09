@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 
 # Create DB directory relative to this file so it works regardless of CWD
-BASE_DIR = Path(__file__).resolve().parents[3]  # .../models/tools/agents/services/database -> repo root
+BASE_DIR = Path(__file__).resolve().parents[1]  # database/ -> repo root
 DB_DIR = BASE_DIR / "database"
 DB_DIR.mkdir(parents=True, exist_ok=True)
 

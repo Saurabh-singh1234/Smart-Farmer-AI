@@ -1,29 +1,33 @@
-from langgraph.graph import StateGraph
+# NOTE:
+# LangGraph is optional for this repo.
+# Your environment currently has dependency resolution issues around LangGraph
+# (missing submodules like `langgraph.cache`). To keep the app runnable,
+# we provide a tiny shim that mimics the `graph.invoke(payload)` API.
 
-# Ensure repo root is on PYTHONPATH when imported from Streamlit
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[5]
+# Ensure repo root is on PYTHONPATH when imported from Streamlit
+REPO_ROOT = Path(__file__).resolve()
+while REPO_ROOT != REPO_ROOT.parent:
+    if (REPO_ROOT / "app.py").exists():
+        break
+    REPO_ROOT = REPO_ROOT.parent
+
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from agents.state import FarmerState
 from agents.nodes import chatbot_node
 
-builder = StateGraph(FarmerState)
 
-builder.add_node(
-    "chatbot",
-    chatbot_node
-)
+class _GraphShim:
+    """Minimal `graph.invoke` compatible object."""
 
-builder.set_entry_point(
-    "chatbot"
-)
+    def invoke(self, payload: dict):
+        # Payload shape comes from app.py:
+        # {"query": question, "answer": ""}
+        return chatbot_node(payload)
 
-builder.set_finish_point(
-    "chatbot"
-)
 
-graph = builder.compile()
+graph = _GraphShim()
+

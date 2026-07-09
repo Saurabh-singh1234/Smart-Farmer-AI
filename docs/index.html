@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farmer AI - Documentation</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --primary-dark: #1b5e20;
+            --accent: #ff8f00;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #1a1a2e;
+            --text-muted: #555;
+            --border: #dde1e6;
+            --code-bg: #272822;
+            --code-text: #f8f8f2;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: #fff;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -10%;
+            width: 120%;
+            height: 60px;
+            background: var(--bg);
+            border-radius: 50% 50% 0 0;
+        }
+        header h1 { font-size: 2.8rem; letter-spacing: -0.5px; }
+        header p { font-size: 1.15rem; opacity: .85; margin-top: .5rem; }
+        /* Layout */
+        .wrapper { display: flex; max-width: 1400px; margin: 0 auto; min-height: 100vh; }
+        /* Sidebar */
+        nav.sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            display: none;
+        }
+        nav.sidebar.open { display: block; }
+        @media (min-width: 1024px) { nav.sidebar { display: block; } }
+        nav.sidebar::-webkit-scrollbar { width: 5px; }
+        nav.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        nav.sidebar h2 {
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 0 1.25rem .5rem;
+        }
+        nav.sidebar a {
+            display: block;
+            padding: .45rem 1.25rem;
+            color: var(--text);
+            text-decoration: none;
+            font-size: .92rem;
+            border-left: 3px solid transparent;
+            transition: all .15s;
+        }
+        nav.sidebar a:hover,
+        nav.sidebar a.active {
+            border-left-color: var(--primary);
+            background: #e8f5e9;
+            color: var(--primary-dark);
+        }
+        nav.sidebar .section-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+            padding: .75rem 1.25rem .25rem;
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: inline-block;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: .5rem 1rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 1rem 0 0 1rem;
+        }
+        @media (min-width: 1024px) { .menu-toggle { display: none; } }
+        /* Main content */
+        main {
+            flex: 1;
+            padding: 2rem 2.5rem;
+            min-width: 0;
+        }
+        main h2 {
+            font-size: 1.75rem;
+            color: var(--primary-dark);
+            border-bottom: 3px solid var(--primary-light);
+            padding-bottom: .4rem;
+            margin: 2.5rem 0 1rem;
+        }
+        main h2:first-of-type { margin-top: 0; }
+        main h3 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin: 1.75rem 0 .75rem;
+        }
+        main h4 {
+            font-size: 1.05rem;
+            color: var(--text);
+            margin: 1.25rem 0 .5rem;
+        }
+        main p, main li { color: var(--text); }
+        main a { color: var(--primary); }
+        main ul, main ol { padding-left: 1.5rem; margin: .5rem 0 1rem; }
+        main li { margin-bottom: .25rem; }
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            border: 1px solid var(--border);
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+        .card-grid .card { margin-bottom: 0; }
+        .card h4 { margin-top: 0; }
+        /* Code blocks */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: .85rem;
+            line-height: 1.5;
+            margin: .75rem 0 1.25rem;
+            tab-size: 4;
+        }
+        code {
+            background: #e8f5e9;
+            color: #1b5e20;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: .88em;
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: .75rem 0 1.25rem;
+            font-size: .92rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: .6rem .8rem;
+            text-align: left;
+        }
+        th {
+            background: #e8f5e9;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        tr:nth-child(even) td { background: #fafafa; }
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+        .badge-py { background: #e3f2fd; color: #1565c0; }
+        .badge-env { background: #fff3e0; color: #e65100; }
+        .badge-tool { background: #fce4ec; color: #c62828; }
+        /* File header */
+        .file-header {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+        .file-header .path {
+            font-family: 'Fira Code', 'Cascadia Code', monospace;
+            font-size: .9rem;
+            color: var(--text-muted);
+        }
+        /* Architecture diagram */
+        .arch-diagram {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            font-family: 'Fira Code', monospace;
+            font-size: .85rem;
+            line-height: 2;
+            margin: 1rem 0;
+        }
+        .arch-diagram .box {
+            display: inline-block;
+            padding: .5rem 1.25rem;
+            border-radius: 8px;
+            margin: 0 .25rem;
+        }
+        .arch-diagram .box.primary { background: #c8e6c9; color: #1b5e20; }
+        .arch-diagram .box.accent { background: #ffe0b2; color: #e65100; }
+        .arch-diagram .box.blue { background: #bbdefb; color: #0d47a1; }
+        .arch-diagram .arrow { color: var(--text-muted); font-weight: bold; }
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: .85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+        /* Utility */
+        .mt-0 { margin-top: 0 !important; }
+        .mb-0 { margin-bottom: 0 !important; }
+        .inline-code { font-family: 'Fira Code', monospace; background: #e8f5e9; padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Smart Farmer AI</h1>
+    <p>AI-powered agricultural assistant — chat, voice, and crop disease detection</p>
+</header>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776; Menu</button>
+
+<div class="wrapper">
+
+<nav class="sidebar">
+    <h2>Contents</h2>
+    <div class="section-label">Overview</div>
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#setup">Setup &amp; Installation</a>
+    <a href="#usage">Usage Guide</a>
+
+    <div class="section-label">Code Reference</div>
+    <a href="#app">app.py</a>
+    <a href="#agents">agents/</a>
+    <a href="#database">database/</a>
+    <a href="#models">models/</a>
+    <a href="#services">services/</a>
+    <a href="#tools">tools/</a>
+
+    <div class="section-label">Configuration</div>
+    <a href="#env">.env</a>
+    <a href="#requirements">requirements.txt</a>
+    <a href="#todo">TODO.md</a>
+
+    <div class="section-label">Project</div>
+    <a href="#structure">Directory Structure</a>
+    <a href="#dependencies">Dependencies</a>
+</nav>
+
+<main>
+
+<!-- =====================  OVERVIEW  ===================== -->
+<h2 id="overview">Overview</h2>
+<p><strong>Smart Farmer AI</strong> is a Streamlit-based web application that leverages Google Gemini and various AI/ML tools to assist farmers. It provides three core capabilities:</p>
+<div class="card-grid">
+    <div class="card">
+        <h4>&#128172; Chat Assistant</h4>
+        <p>Ask agriculture-related questions and get expert answers powered by Gemini 2.5 Flash.</p>
+    </div>
+    <div class="card">
+        <h4>&#127908; Voice Interaction</h4>
+        <p>Speak your queries via microphone; speech-to-text converts them to text, and responses are read aloud via text-to-speech.</p>
+    </div>
+    <div class="card">
+        <h4>&#127793; Disease Detection</h4>
+        <p>Upload a crop image and receive AI-driven disease analysis with actionable recommendations.</p>
+    </div>
+</div>
+
+<!-- =====================  ARCHITECTURE  ===================== -->
+<h2 id="architecture">Architecture</h2>
+<p>The application follows a modular package-based architecture:</p>
+<div class="arch-diagram">
+    <div class="box primary">Streamlit UI</div>
+    <span class="arrow">&rarr;</span>
+    <div class="box accent">LangGraph Shim</div>
+    <span class="arrow">&rarr;</span>
+    <div class="box blue">Chatbot Node</div>
+    <br>
+    <div class="box primary">Voice Tab</div>
+    <span class="arrow">&darr;</span>
+    <div class="box accent">Speech Service</div>
+    <br>
+    <div class="box primary">Disease Tab</div>
+    <span class="arrow">&darr;</span>
+    <div class="box accent">Disease Tool</div>
+    <span class="arrow">&rarr;</span>
+    <div class="box blue">Gemini API</div>
+</div>
+
+<table>
+    <tr><th>Layer</th><th>Directory</th><th>Purpose</th></tr>
+    <tr><td>UI Layer</td><td><span class="inline-code">app.py</span></td><td>Streamlit entry point with 3-tab interface</td></tr>
+    <tr><td>Agent Layer</td><td><span class="inline-code">agents/</span></td><td>LangGraph-compatible graph, state, and nodes</td></tr>
+    <tr><td>Model Layer</td><td><span class="inline-code">models/</span></td><td>Gemini LLM, translation, and Whisper ASR wrappers</td></tr>
+    <tr><td>Service Layer</td><td><span class="inline-code">services/</span></td><td>Speech-to-text and text-to-speech utilities</td></tr>
+    <tr><td>Tool Layer</td><td><span class="inline-code">tools/</span></td><td>Crop advice, disease detection, weather lookup</td></tr>
+    <tr><td>Data Layer</td><td><span class="inline-code">database/</span></td><td>SQLite persistent chat storage</td></tr>
+</table>
+
+<!-- =====================  SETUP  ===================== -->
+<h2 id="setup">Setup &amp; Installation</h2>
+
+<h3>Prerequisites</h3>
+<ul>
+    <li>Python 3.10+</li>
+    <li>A <strong>Google Gemini API key</strong> (set as <span class="inline-code">GOOGLE_API_KEY</span> in <span class="inline-code">.env</span>)</li>
+    <li>A <strong>Gemini API key</strong> for disease detection (set as <span class="inline-code">GEMINI_API_KEY</span> in <span class="inline-code">.env</span>)</li>
+    <li>(Optional) <strong>OpenWeather API key</strong> for weather tool (<span class="inline-code">OPENWEATHER_API_KEY</span>)</li>
+    <li>(Optional) Working microphone + PyAudio for voice features</li>
+</ul>
+
+<h3>Installation Steps</h3>
+<pre><code># 1. Clone the repository
+git clone &lt;repo-url&gt;
+cd Smart-Farmer-AI
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+.\venv\Scripts\activate   # Windows
+source venv/bin/activate  # Linux/macOS
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Create .env file with your API keys
+echo GOOGLE_API_KEY=your_key_here >> .env
+echo GEMINI_API_KEY=your_key_here >> .env
+
+# 5. Run the application
+streamlit run app.py</code></pre>
+
+<!-- =====================  USAGE  ===================== -->
+<h2 id="usage">Usage Guide</h2>
+
+<h3>Chat Tab</h3>
+<p>Type any agriculture-related question in the chat input. The AI assistant (powered by Gemini 2.5 Flash) will respond with expert advice.</p>
+
+<h3>Voice Tab</h3>
+<ol>
+    <li>Click <strong>&#127908; Ask by Voice</strong>.</li>
+    <li>Speak your query clearly into the microphone.</li>
+    <li>The app transcribes your speech, gets an AI response, and plays the answer aloud via TTS.</li>
+</ol>
+
+<h3>Disease Detection Tab</h3>
+<ol>
+    <li>Upload a crop image (JPG, JPEG, or PNG).</li>
+    <li>Click <strong>Detect Disease</strong>.</li>
+    <li>View the AI diagnosis and recommendations, with optional audio playback.</li>
+</ol>
+
+<!-- =====================  FILE: app.py  ===================== -->
+<h2 id="app">app.py &mdash; Entry Point</h2>
+
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">app.py &mdash; 188 lines</span>
+    </div>
+    <p>The main Streamlit application. It sets up the page, manages session state for chat history, and renders three interactive tabs.</p>
+</div>
+
+<h3>Key Functions &amp; Flow</h3>
+<table>
+    <tr><th>Section</th><th>Description</th></tr>
+    <tr><td><span class="inline-code">sys.path</span> setup</td><td>Ensures the repo root is on <span class="inline-code">PYTHONPATH</span> for reliable imports when run via Streamlit.</td></tr>
+    <tr><td>Session State</td><td><span class="inline-code">st.session_state.messages</span> persists chat history across reruns.</td></tr>
+    <tr><td>Chat Tab</td><td>Renders message history, accepts chat input, invokes <span class="inline-code">graph.invoke()</span>, and appends the response.</td></tr>
+    <tr><td>Voice Tab</td><td>Calls <span class="inline-code">speech_to_text()</span>, invokes the graph, and plays the response via <span class="inline-code">text_to_voice()</span>.</td></tr>
+    <tr><td>Disease Tab</td><td>Accepts image upload, calls <span class="inline-code">analyze_crop_image()</span>, displays results, and offers audio playback.</td></tr>
+</table>
+
+<h3>Error Handling</h3>
+<p>The disease detection tab wraps <span class="inline-code">analyze_crop_image()</span> in a <span class="inline-code">try/except</span> block so a tool failure doesn't crash the entire app.</p>
+
+<!-- =====================  agents/  ===================== -->
+<h2 id="agents">agents/ &mdash; Agent Layer</h2>
+
+<h3>state.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">agents/state.py &mdash; 5 lines</span>
+    </div>
+    <p>Defines the <span class="inline-code">FarmerState</span> TypedDict with two keys:</p>
+    <table>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td><span class="inline-code">query</span></td><td><span class="inline-code">str</span></td><td>User input question</td></tr>
+        <tr><td><span class="inline-code">answer</span></td><td><span class="inline-code">str</span></td><td>AI-generated response</td></tr>
+    </table>
+</div>
+
+<h3>nodes.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">agents/nodes.py &mdash; 26 lines</span>
+    </div>
+    <p>Contains the <span class="inline-code">chatbot_node(state)</span> function:</p>
+    <ul>
+        <li>Checks if the Gemini LLM was loaded successfully.</li>
+        <li>If <span class="inline-code">llm</span> is <span class="inline-code">None</span>, returns a helpful error message.</li>
+        <li>Otherwise, invokes the LLM with an agriculture-expert system prompt and returns the response content.</li>
+    </ul>
+</div>
+
+<h3>graph.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">agents/graph.py &mdash; 33 lines</span>
+    </div>
+    <p>Provides a <span class="inline-code">_GraphShim</span> class that mimics LangGraph's <span class="inline-code">graph.invoke(payload)</span> interface to keep the app runnable even when LangGraph isn't fully installed.</p>
+</div>
+
+<!-- =====================  database/  ===================== -->
+<h2 id="database">database/ &mdash; Data Layer</h2>
+
+<h3>db.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">database/db.py &mdash; 30 lines</span>
+    </div>
+    <p>Initializes a SQLite database (<span class="inline-code">farmer.db</span>) with a single <span class="inline-code">chats</span> table:</p>
+    <table>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+        <tr><td><span class="inline-code">id</span></td><td>INTEGER PRIMARY KEY</td><td>Auto-increment ID</td></tr>
+        <tr><td><span class="inline-code">question</span></td><td>TEXT</td><td>User question</td></tr>
+        <tr><td><span class="inline-code">answer</span></td><td>TEXT</td><td>AI response</td></tr>
+    </table>
+    <p>The database file is created at <span class="inline-code">database/farmer.db</span> relative to the repo root. The directory is created automatically if it doesn't exist.</p>
+</div>
+
+<!-- =====================  models/  ===================== -->
+<h2 id="models">models/ &mdash; AI Model Wrappers</h2>
+
+<h3>gemini.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">models/gemini.py &mdash; 47 lines</span>
+    </div>
+    <p>Loads <span class="inline-code">GOOGLE_API_KEY</span> from the environment and initializes a <span class="inline-code">ChatGoogleGenerativeAI</span> instance using the <span class="inline-code">gemini-2.5-flash</span> model with temperature 0.7.</p>
+    <p>Key details:</p>
+    <ul>
+        <li>Uses <span class="inline-code">python-dotenv</span> to load <span class="inline-code">.env</span>.</li>
+        <li>Wraps the LLM import in a try/except so missing dependencies don't break app startup.</li>
+        <li>If initialization fails, <span class="inline-code">llm</span> is set to <span class="inline-code">None</span> and a runtime error is surfaced in the chat UI.</li>
+    </ul>
+</div>
+
+<h3>translator.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">models/translator.py &mdash; 9 lines</span>
+    </div>
+    <p>Exposes a <span class="inline-code">translate_text(text, target)</span> function using the <span class="inline-code">googletrans</span> library. The <span class="inline-code">target</span> parameter is a language code (e.g., <span class="inline-code">'te'</span> for Telugu).</p>
+</div>
+
+<h3>whisper_model.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">models/whisper_model.py &mdash; 7 lines</span>
+    </div>
+    <p>Loads OpenAI Whisper's <span class="inline-code">base</span> model and provides a <span class="inline-code">speech_to_text(audio_path)</span> function that transcribes an audio file.</p>
+</div>
+
+<!-- =====================  services/  ===================== -->
+<h2 id="services">services/ &mdash; Speech Services</h2>
+
+<h3>speech_service.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">services/speech_service.py &mdash; 72 lines</span>
+    </div>
+    <p>Provides two core functions:</p>
+
+    <h4><span class="inline-code">speech_to_text(language="en-IN", phrase_time_limit=10) &rarr; str</span></h4>
+    <ul>
+        <li>Uses <span class="inline-code">speech_recognition</span> with the Google Web Speech API.</li>
+        <li>Calibrates to ambient noise for accuracy.</li>
+        <li>Returns recognized text or raises <span class="inline-code">RuntimeError</span> with user-friendly messages for microphone, recognition, or network failures.</li>
+    </ul>
+
+    <h4><span class="inline-code">text_to_voice(text, lang="en") &rarr; str</span></h4>
+    <ul>
+        <li>Converts text to speech using <span class="inline-code">gTTS</span> (Google Text-to-Speech).</li>
+        <li>Saves output to a unique MP3 file (<span class="inline-code">response_&lt;uuid&gt;.mp3</span>) and returns the absolute path.</li>
+        <li>Raises <span class="inline-code">RuntimeError</span> for empty text or TTS failures.</li>
+    </ul>
+</div>
+
+<!-- =====================  tools/  ===================== -->
+<h2 id="tools">tools/ &mdash; Utility Tools</h2>
+
+<h3>crop_tool.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">tools/crop_tool.py &mdash; 11 lines</span>
+    </div>
+    <p><span class="inline-code">crop_advice(query)</span> returns a static recommendation for wheat, rice, and maize based on the user query. This is a placeholder for future ML-powered recommendations.</p>
+</div>
+
+<h3>disease_tool.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">tools/disease_tool.py &mdash; 52 lines</span>
+    </div>
+    <p>Core crop disease detection pipeline:</p>
+    <ol>
+        <li>Validates that the <span class="inline-code">google-generativeai</span> SDK is installed and <span class="inline-code">GEMINI_API_KEY</span> is set.</li>
+        <li>Converts a PIL <span class="inline-code">Image</span> to PNG bytes for SDK compatibility.</li>
+        <li>Sends the image to Gemini 2.5 Flash with a prompt asking for crop disease analysis and actionable recommendations.</li>
+        <li>Returns the model's text response.</li>
+    </ol>
+</div>
+
+<h3>weather_tool.py</h3>
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-py">Python</span>
+        <span class="path">tools/weather_tool.py &mdash; 21 lines</span>
+    </div>
+    <p><span class="inline-code">get_weather(city) &rarr; dict</span> fetches current weather data from the OpenWeatherMap API for the given city. Requires <span class="inline-code">OPENWEATHER_API_KEY</span> in the environment.</p>
+</div>
+
+<!-- =====================  CONFIG  ===================== -->
+<h2 id="env">.env &mdash; Environment Configuration</h2>
+
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-env">Env</span>
+        <span class="path">.env</span>
+    </div>
+    <p>Stores sensitive API keys (not committed to version control):</p>
+    <table>
+        <tr><th>Variable</th><th>Required By</th><th>Purpose</th></tr>
+        <tr><td><span class="inline-code">GEMINI_API_KEY</span></td><td><span class="inline-code">tools/disease_tool.py</span></td><td>Gemini API key for crop disease detection</td></tr>
+        <tr><td><span class="inline-code">GOOGLE_API_KEY</span></td><td><span class="inline-code">models/gemini.py</span></td><td>Google AI API key for Gemini chat LLM</td></tr>
+    </table>
+</div>
+
+<h2 id="requirements">requirements.txt &mdash; Python Dependencies</h2>
+
+<table>
+    <tr><th>Package</th><th>Version</th><th>Purpose</th></tr>
+    <tr><td>streamlit</td><td>1.58.0</td><td>Web UI framework</td></tr>
+    <tr><td>langgraph</td><td>1.2.6</td><td>Graph-based agent orchestration (shimmed)</td></tr>
+    <tr><td>langchain-community</td><td>&mdash;</td><td>LangChain community integrations</td></tr>
+    <tr><td>langchain-google-genai</td><td>&mdash;</td><td>Google Gemini integration for LangChain</td></tr>
+    <tr><td>ollama</td><td>&mdash;</td><td>Local LLM runner (optional)</td></tr>
+    <tr><td>python-dotenv</td><td>1.0.1</td><td>Load <span class="inline-code">.env</span> files</td></tr>
+    <tr><td>gTTS</td><td>2.5.4</td><td>Google text-to-speech</td></tr>
+    <tr><td>SpeechRecognition</td><td>3.17.0</td><td>Speech-to-text</td></tr>
+    <tr><td>openai-whisper</td><td>20250625</td><td>OpenAI Whisper ASR model</td></tr>
+    <tr><td>Pillow</td><td>12.2.0</td><td>Image processing</td></tr>
+    <tr><td>requests</td><td>&ge;2.32.5</td><td>HTTP client (weather API)</td></tr>
+    <tr><td>httpx</td><td>&ge;0.27</td><td>HTTP client (pinned for compatibility)</td></tr>
+    <tr><td>google-generativeai</td><td>&mdash;</td><td>Google Gemini SDK (disease detection)</td></tr>
+</table>
+
+<h2 id="todo">TODO.md &mdash; Development Roadmap</h2>
+
+<div class="card">
+    <div class="file-header">
+        <span class="badge badge-env">Todo</span>
+        <span class="path">TODO.md</span>
+    </div>
+    <p>Planned improvements for the project:</p>
+    <ul>
+        <li>Fix robust PYTHONPATH/repo-root handling in <span class="inline-code">agents/graph.py</span></li>
+        <li>Add clear env-key validation + safer Gemini LLM init in <span class="inline-code">models/gemini.py</span></li>
+        <li>Fix Gemini image payload handling in <span class="inline-code">tools/disease_tool.py</span> (PIL &rarr; bytes)</li>
+        <li>Add Streamlit error handling so a single failing tool doesn't crash the app</li>
+        <li>Validate with <span class="inline-code">python -m compileall .</span></li>
+        <li>Validate import/run with <span class="inline-code">python -c "import app"</span></li>
+        <li>Run Streamlit smoke test</li>
+    </ul>
+</div>
+
+<!-- =====================  STRUCTURE  ===================== -->
+<h2 id="structure">Directory Structure</h2>
+
+<pre><code>Smart-Farmer-AI/
+├── <span style="color:#a6e22e">app.py</span>                  # Streamlit entry point (188 lines)
+├── <span style="color:#a6e22e">requirements.txt</span>        # Python package dependencies
+├── <span style="color:#a6e22e">TODO.md</span>                # Development roadmap
+├── <span style="color:#a6e22e">.env</span>                   # Environment variables (API keys)
+├── <span style="color:#a6e22e">.gitignore</span>             # Git ignore rules
+│
+├── <span style="color:#66d9ef">agents/</span>
+│   ├── <span style="color:#a6e22e">graph.py</span>             # LangGraph shim (33 lines)
+│   ├── <span style="color:#a6e22e">nodes.py</span>             # Chatbot node (26 lines)
+│   └── <span style="color:#a6e22e">state.py</span>             # FarmerState TypedDict (5 lines)
+│
+├── <span style="color:#66d9ef">database/</span>
+│   └── <span style="color:#a6e22e">db.py</span>                # SQLite chat storage (30 lines)
+│
+├── <span style="color:#66d9ef">models/</span>
+│   ├── <span style="color:#a6e22e">gemini.py</span>            # Gemini LLM wrapper (47 lines)
+│   ├── <span style="color:#a6e22e">translator.py</span>        # Google Translate wrapper (9 lines)
+│   └── <span style="color:#a6e22e">whisper_model.py</span>     # Whisper ASR wrapper (7 lines)
+│
+├── <span style="color:#66d9ef">services/</span>
+│   └── <span style="color:#a6e22e">speech_service.py</span>    # Speech-to-text & text-to-speech (72 lines)
+│
+└── <span style="color:#66d9ef">tools/</span>
+    ├── <span style="color:#a6e22e">crop_tool.py</span>         # Crop recommendation helper (11 lines)
+    ├── <span style="color:#a6e22e">disease_tool.py</span>      # Crop disease detection via Gemini (52 lines)
+    └── <span style="color:#a6e22e">weather_tool.py</span>      # OpenWeatherMap API wrapper (21 lines)</code></pre>
+
+<!-- =====================  DEPENDENCIES  ===================== -->
+<h2 id="dependencies">Dependency Graph</h2>
+
+<pre><code>app.py
+  ├── agents/graph.py
+  │     └── agents/nodes.py
+  │           └── models/gemini.py
+  ├── services/speech_service.py
+  │     ├── speech_recognition
+  │     └── gtts
+  ├── tools/disease_tool.py
+  │     ├── google.generativeai
+  │     └── PIL
+  ├── database/db.py
+  │     └── sqlite3
+  └── streamlit</code></pre>
+
+<footer>
+    Smart Farmer AI &mdash; Documentation generated from source code.<br>
+    Built with &hearts; for smarter agriculture.
+</footer>
+
+</main>
+</div>
+
+<script>
+    // Highlight active sidebar link based on scroll position
+    const links = document.querySelectorAll('.sidebar a');
+    const sections = [];
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+            const el = document.getElementById(href.substring(1));
+            if (el) sections.push({ link, el });
+        }
+    });
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(({ link, el }) => {
+            if (el.getBoundingClientRect().top <= 120) current = link;
+        });
+        links.forEach(a => a.classList.remove('active'));
+        sections.forEach(({ link }) => {
+            if (link === current) link.classList.add('active');
+        });
+    });
+    // Close sidebar on mobile when a link is clicked
+    links.forEach(a => {
+        a.addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.remove('open');
+        });
+    });
+</script>
+
+</body>
+</html>
